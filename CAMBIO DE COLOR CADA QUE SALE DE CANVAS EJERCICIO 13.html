@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dibujar Círculo con Transparencia</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; background: #f0f0f0; } /* Fondo gris claro para mejor visibilidad */
+    </style>
+</head>
+<body>
+    <canvas id="miCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('miCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Variable para el color con transparencia
+        let colorFijo = 'rgba(85, 128, 255, 0.6)'; // Color inicial
+
+        // Función para generar un color aleatorio con transparencia
+        function generarColorAleatorio() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            const alpha = 0.6; // Transparencia fija
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Función para manejar el evento mousedown del mouse
+        function dibujarCirculo(event) {
+            // Ajusta la posición del clic según el tamaño del canvas
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            const radio = Math.floor(Math.random() * 80) + 10; // Radio entre 10 y 90
+
+            ctx.beginPath();
+            ctx.arc(x, y, radio, 0, Math.PI * 2);
+            ctx.strokeStyle = 'black'; // Color del contorno
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = colorFijo; // Color actual con transparencia
+            ctx.fill();
+        }
+
+        // Evento para cambiar el color al entrar en el canvas
+        canvas.addEventListener('mouseenter', () => {
+            colorFijo = generarColorAleatorio();
+        });
+
+        // Evento para cambiar el color al salir del canvas
+        canvas.addEventListener('mouseleave', () => {
+            colorFijo = generarColorAleatorio();
+        });
+
+        // Agregar un evento mousedown al canvas
+        canvas.addEventListener('mousedown', dibujarCirculo);
+    </script>
+</body>
+</html>
