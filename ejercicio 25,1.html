@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimiento con requestAnimationFrame y Color Aleatorio</title>
+    <style>
+        #canvas {
+            background-color: #f0f0f0;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let x = 250;  // Posición inicial en el centro del canvas
+        let y = 250;
+        let speed = 2;  // Velocidad de movimiento
+        let dx = 0;  // Cambio en la posición en X
+        let dy = 0;  // Cambio en la posición en Y
+        let color = getRandomColor();  // Color inicial del cuadrado
+
+        function drawSquare() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Limpiar el canvas
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 50, 50);  // Dibujar el cuadrado en la posición actual
+        }
+
+        function updatePosition() {
+            x += dx;
+            y += dy;
+
+            // Evitar que el cuadrado se salga del canvas
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x + 50 > canvas.width) x = canvas.width - 50;
+            if (y + 50 > canvas.height) y = canvas.height - 50;
+
+            drawSquare();
+            requestAnimationFrame(updatePosition);  // Volver a llamar a la función para crear la animación
+        }
+
+        function handleKeyDown(e) {
+            switch(e.key) {
+                case 'ArrowUp':
+                    dx = 0;
+                    dy = -speed;
+                    break;
+                case 'ArrowDown':
+                    dx = 0;
+                    dy = speed;
+                    break;
+                case 'ArrowLeft':
+                    dx = -speed;
+                    dy = 0;
+                    break;
+                case 'ArrowRight':
+                    dx = speed;
+                    dy = 0;
+                    break;
+            }
+            color = getRandomColor();  // Cambiar a un color aleatorio
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Iniciar la animación y escuchar los eventos de teclado
+        requestAnimationFrame(updatePosition);
+        window.addEventListener('keydown', handleKeyDown);
+    </script>
+</body>
+</html>
