@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
+        canvas {
+            background-color: #111;
+            border: 1px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+
+        let snake = [{ x: 10, y: 10 }];
+        let snakeLength = 1;
+        let food = { x: 5, y: 5 };
+        let velocity = { x: 0, y: 0 };
+        let gameSpeed = 10; // Velocidad inicial del juego
+        let speedInterval; // Variable para almacenar el intervalo del juego
+
+        // Rectángulo con el que la serpiente puede colisionar
+        const obstacle = { x: 7, y: 12, width: 7, height: 1 };
+
+        // Inicia el juego
+        function startGame() {
+            placeFood();
+            document.addEventListener("keydown", changeDirection);
+            document.addEventListener("keydown", adjustSpeed);
+            speedInterval = setInterval(gameLoop, gameSpeed);
+        }
+
+        // Bucle principal del juego
+        function gameLoop() {
+            moveSnake();
+            checkCollision();
+            drawGame();
+        }
+
+        // Mueve la serpiente
+        function moveSnake() {
+            const head = { x: snake[0].x + velocity.x, y: snake[0].y + velocity.y };
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                snakeLength++;
+                placeFood();
+            }
+
+            while (snake.length > snakeLength) {
+                snake.pop();
+            }
+        }
+
+        // Dibuja el juego
+        function drawGame() {
+            clearCanvas();
+            drawSnake();
+            drawFood();
+            drawObstacle();
+        }
+
+        // Limpia el canvas
+        function clearCanvas() {
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Dibuja la serpiente
+        function drawSnake() {
+            ctx.fillStyle = "#0f0";
+            snake.forEach(part => {
+                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize, gridSize);
+            });
+        }
+
+        // Dibuja la comida
+        function drawFood() {
+            ctx.fillStyle = "#f00";
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+        }
+
+        // Dibuja el obstáculo
+        function drawObstacle() {
+            ctx.fillStyle = "#00f";
+            ctx.fillRect(obstacle.x * gridSize, obstacle.y * gridSize, obstacle.width * gridSize, obstacle.height * gridSize);
+        }
+
+        // Coloca la comida en una posición aleatoria
+        function placeFood() {
+            food.x = Math.floor(Math.random() * tileCount);
+            food.y = Math.floor(Math.random() * tileCount);
+        }
+
+        // Cambia la dirección de la serpiente
+        function changeDirection(event) {
+            switch (event.key) {
+                case "ArrowUp":
+                    if (velocity.y === 0) velocity = { x: 0, y: -1 };
+                    break;
+                case "ArrowDown":
+                    if (velocity.y === 0) velocity = { x: 0, y: 1 };
+                    break;
+                case "ArrowLeft":
+                    if (velocity.x === 0) velocity = { x: -1, y: 0 };
+                    break;
+                case "ArrowRight":
+                    if (velocity.x === 0) velocity = { x: 1, y: 0 };
+                    break;
+            }
+        }
+
+        // Ajusta la velocidad del juego
+        function adjustSpeed(event) {
+            switch (event.key) {
+                case " ":
+                    clearInterval(speedInterval);
+                    gameSpeed = Math.max(5, gameSpeed - 5); // Aumenta la velocidad (menos tiempo entre frames)
+                    speedInterval = setInterval(gameLoop, gameSpeed);
+                    break;
+                case "Enter":
+                    clearInterval(speedInterval);
+                    gameSpeed = 200; // Reduce la velocidad a un mínimo de 5 (200 ms entre frames)
+                    speedInterval = setInterval(gameLoop, gameSpeed);
+                    break;
+            }
+        }
+
+        // Revisa si la serpiente colisiona con las paredes, consigo misma o con el obstáculo
+        function checkCollision() {
+            const head = snake[0];
+
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || isCollision(head) || isObstacleCollision(head)) {
+                resetGame();
+            }
+        }
+
+        // Revisa si la cabeza de la serpiente colisiona con su propio cuerpo
+        function isCollision(head) {
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Revisa si la cabeza de la serpiente colisiona con el obstáculo
+        function isObstacleCollision(head) {
+            return (
+                head.x >= obstacle.x &&
+                head.x < obstacle.x + obstacle.width &&
+                head.y >= obstacle.y &&
+                head.y < obstacle.y + obstacle.height
+            );
+        }
+
+    
+// Reinicia el juego
+function resetGame() {
+    snake = [{ x: 10, y: 10 }];
+    snakeLength = 1;
+    velocity = { x: 0, y: 0 };
+    gameSpeed = 100; // Velocidad fija al reiniciar
+    clearInterval(speedInterval);
+    speedInterval = setInterval(gameLoop, gameSpeed);
+    placeFood();
+}
+
+
+        // Inicia el juego cuando se carga la página
+        startGame();
+    </script>
+</body>
+</html>
